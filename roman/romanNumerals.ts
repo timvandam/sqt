@@ -21,12 +21,14 @@ export function romanToInteger (roman: string) {
     const previousNum = previousLetter ? alphabet.get(previousLetter) : undefined
     if (!previousNum) continue
     if (previousNum >= currentNum) continue
-    const currentMagnitude = currentNum.toString().length
-    const prevMagnitude = previousNum.toString().length
-    if (Math.abs(currentMagnitude - prevMagnitude) > 1) throw new Error(`${previousLetter}${letter} is out of magnitude!`)
-    if (currentNum - previousNum === previousNum) throw new Error(`${previousLetter}${letter} is equal to ${previousLetter}!`)
     // If the previous number is smaller than the current one, we will have to subtract it instead of add it
     // Since we have previously already added it, we have to subtract it twice
+    const currentMagnitude = currentNum.toString().length
+    const prevMagnitude = previousNum.toString().length
+    // Amount of digits should be within difference of 1
+    if (Math.abs(currentMagnitude - prevMagnitude) > 1) throw new Error(`${previousLetter}${letter} is out of magnitude!`)
+    // No numerals that equal a smaller version of it (DM = 1000 - 500 = D)
+    if (currentNum - previousNum === previousNum) throw new Error(`${previousLetter}${letter} is equal to ${previousLetter}!`)
     total -= 2 * previousNum
   }
   return total

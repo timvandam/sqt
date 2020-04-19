@@ -4,6 +4,7 @@
 - [Why software testing?](#why-software-testing)
 - [Principles of software testing](#principles-of-software-testing)
 - [Software testing automation](#software-testing-automation)
+- [Tests and refactoring](#tests-and-refactoring)
 
 ## Why software testing?
 Why test? Because bugs are everywhere, and they *can* have a major effect on our lives.

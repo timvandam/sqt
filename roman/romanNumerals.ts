@@ -10,6 +10,7 @@ const alphabet = new Map<string, number>([
 
 // Seems to work with small checks
 export function romanToInteger (roman: string) {
+  roman = roman.toUpperCase()
   let total = 0
   for (let i = 0; i < roman.length; i++) {
     const letter = roman.charAt(i)
@@ -29,3 +30,14 @@ export function romanToInteger (roman: string) {
   }
   return total
 }
+
+/*
+Test cases I thought of:
+- Invalid numerals such as 'ABC' (numeral not in the defined alphabet)
+- Numerals of length 1 (no previous numeral)
+- Numerals where the previous numeral is more than 1 order of magnitude greater/smaller than the current one (invalid)
+- Numerals where the previous numeral is greater than the current numeral (simply add current total)
+- Numerals where the previous numeral is smaller that the current numeral (prev should be subtracted)
+
+I thought of these by looking at all branches in my code. The mentioned test cases should cover all lines & branches
+ */

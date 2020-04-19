@@ -8,7 +8,10 @@ const alphabet = new Map<string, number>([
   ['M', 1000]
 ])
 
-// Seems to work with small checks
+/**
+ * Converts a roman numeral to a base 10 integer
+ * @param roman - the roman numeral to convert to a base 10 integer
+ */
 export function romanToInteger (roman: string) {
   roman = roman.toUpperCase()
   let total = 0

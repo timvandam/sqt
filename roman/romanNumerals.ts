@@ -8,7 +8,7 @@ const alphabet = new Map<string, number>([
   ['M', 1000]
 ])
 
-// Seems to work with small tests, but does not detect invalid numerals
+// Seems to work with small checks
 export function romanToInteger (roman: string) {
   let total = 0
   for (let i = 0; i < roman.length; i++) {
@@ -20,6 +20,9 @@ export function romanToInteger (roman: string) {
     const previousNum = previousLetter ? alphabet.get(previousLetter) : undefined
     if (!previousNum) continue
     if (previousNum >= currentNum) continue
+    const currentMagnitude = currentNum.toString().length
+    const prevMagnitude = previousNum.toString().length
+    if (Math.abs(currentMagnitude - prevMagnitude) > 1) throw new Error('Invalid numeral!')
     // If the previous number is smaller than the current one, we will have to subtract it instead of add it
     // Since we have previously already added it, we have to subtract it twice
     total -= 2 * previousNum

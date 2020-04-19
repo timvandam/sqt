@@ -1,6 +1,6 @@
 import { blackjack } from "../blackjack";
 
-it('works when under or equal to 21', () => {
+it('works when both variables are under or equal to 21', () => {
   expect(blackjack(20, 19)).toBe(20)
   expect(blackjack(21, 19)).toBe(21)
   expect(blackjack(20, 20)).toBe(20)

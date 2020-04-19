@@ -1,0 +1,11 @@
+{
+  "name": "sqt",
+  "version": "1.0.0",
+  "description": "Software Quality & Testing Exercises",
+  "repository": "git@github.com:timvandam/sqt.git",
+  "author": "Tim van Dam <timvandamcs@gmail.com>",
+  "devDependencies": {
+    "typescript": "^3.8.3"
+  },
+  "private": true
+}

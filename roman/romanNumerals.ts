@@ -10,7 +10,7 @@ const alphabet = new Map<string, number>([
 
 /**
  * Converts a roman numeral to a base 10 integer
- * @param roman - the roman numeral to convert to a base 10 integer
+ * @param {string} roman - the roman numeral to convert to a base 10 integer
  */
 export function romanToInteger (roman: string) {
   roman = roman.toUpperCase()
@@ -28,9 +28,11 @@ export function romanToInteger (roman: string) {
     const currentMagnitude = currentNum.toString().length
     const prevMagnitude = previousNum.toString().length
     // Amount of digits should be within difference of 1
-    if (Math.abs(currentMagnitude - prevMagnitude) > 1) throw new Error(`${previousLetter}${letter} is out of magnitude!`)
+    if (Math.abs(currentMagnitude - prevMagnitude) > 1)
+      throw new Error(`${previousLetter}${letter} is out of magnitude!`)
     // No numerals that equal a smaller version of it (DM = 1000 - 500 = D)
-    if (currentNum - previousNum === previousNum) throw new Error(`${previousLetter}${letter} is equal to ${previousLetter}!`)
+    if (currentNum - previousNum === previousNum)
+      throw new Error(`${previousLetter}${letter} is equal to ${previousLetter}!`)
     // Since we have previously already added it, we have to subtract it twice
     total -= 2 * previousNum
   }
@@ -44,6 +46,10 @@ Test cases I thought of:
 - Numerals where the previous numeral is more than 1 order of magnitude greater/smaller than the current one (invalid)
 - Numerals where the previous numeral is greater than the current numeral (simply add current total)
 - Numerals where the previous numeral is smaller that the current numeral (prev should be subtracted)
+- Numerals where the order of magnitude between two numerals is incorrect
+- Numerals where the subtraction of one numeral creates another single-letter numeral (DM = D)
 
 I thought of these by looking at all branches in my code. The mentioned test cases should cover all lines & branches
+When testing the test suite in __tests__/romanNumerals.test it reports a coverage of 100%, so it seems like these test
+cases have achieved my goal
  */

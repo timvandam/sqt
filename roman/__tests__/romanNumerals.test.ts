@@ -22,8 +22,8 @@ it('works when providing a subtractive numeral', () => {
 })
 
 it('works when providing an out-of-magnitude subtractive numeral', () => {
-  expect(() => romanToInteger('XM')).toThrow('XM is out of magnitude!')
-  expect(() => romanToInteger('IXM')).toThrow('XM is out of magnitude!')
+  expect(() => romanToInteger('XM')).toThrow(new Error('XM is out of magnitude!'))
+  expect(() => romanToInteger('IXM')).toThrow(new Error('XM is out of magnitude!'))
 })
 
 it('works when providing a numeral that equals a smaller version of itself', () => {

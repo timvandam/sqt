@@ -5,7 +5,13 @@
   "repository": "git@github.com:timvandam/sqt.git",
   "author": "Tim van Dam <timvandamcs@gmail.com>",
   "devDependencies": {
+    "@types/jest": "^25.2.1",
+    "@types/node": "^13.13.0",
+    "jest": "^25.3.0",
     "typescript": "^3.8.3"
   },
-  "private": true
+  "private": true,
+  "scripts": {
+    "test": "jest"
+  }
 }

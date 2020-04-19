@@ -15,7 +15,7 @@ export function romanToInteger (roman: string) {
   for (let i = 0; i < roman.length; i++) {
     const letter = roman.charAt(i)
     const currentNum = alphabet.get(letter)
-    if (currentNum === undefined) throw new Error(`Undefined roman numeral ${letter}`)
+    if (currentNum === undefined) throw new Error(`Invalid roman numeral ${letter}`)
     total += currentNum
     const previousLetter = roman.charAt(i - 1)
     const previousNum = previousLetter ? alphabet.get(previousLetter) : undefined
@@ -23,7 +23,8 @@ export function romanToInteger (roman: string) {
     if (previousNum >= currentNum) continue
     const currentMagnitude = currentNum.toString().length
     const prevMagnitude = previousNum.toString().length
-    if (Math.abs(currentMagnitude - prevMagnitude) > 1) throw new Error('Invalid numeral!')
+    if (Math.abs(currentMagnitude - prevMagnitude) > 1) throw new Error(`${previousLetter}${letter} is out of magnitude!`)
+    if (currentNum - previousNum === previousNum) throw new Error(`${previousLetter}${letter} is equal to ${previousLetter}!`)
     // If the previous number is smaller than the current one, we will have to subtract it instead of add it
     // Since we have previously already added it, we have to subtract it twice
     total -= 2 * previousNum

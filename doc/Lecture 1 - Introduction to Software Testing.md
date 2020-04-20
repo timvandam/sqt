@@ -19,9 +19,9 @@ A component of a system that does not function as expected.
 Think of for example a news homepage displaying yesterday's news instead of today's.
 
 #### Fault
-Also called a **bug** or **defect**. A fault is the technical mistake in the system that can cause a failure.
+Also called a **bug** or **defect**. A fault is the technical mistake in a system that can cause a failure.
 An example could be incorrectly using `>` instead of `>=` in your code.
-Note that a fault does not necessarily cause a failure; the faulty code might never not be evaluated,
+Note that a fault does not necessarily cause a failure; the faulty code might never be evaluated,
 making it seem as if it is not there.
 
 #### Error
@@ -46,7 +46,7 @@ Testing every case is called **exhaustive testing**.
 
 Bugs are not **uniformly distributed**; some parts of your system might contain more bugs than others.
 
-Implementing tests will show you the presence of bugs, not the lack thereof.
+It is important to understand that implementing tests will show you **the presence of bugs**, not the lack thereof.
 
 #### The pesticide paradox
 The pesticide paradox shows that every method you use to find or prevent bugs will leave a residue of smaller, subtler
@@ -66,7 +66,7 @@ Testing frameworks allow you to confirm that your code does what you intend it t
 returns the right thing using **assertions**. Examples in `JUnit` are *assertTrue*, *assertEquals*, *assertFalse*.
 Examples in `Jest` are *toBe*, *toThrow*, *toBeFalsy*.
 
-Testing frameworks generally also allow you to manipulate your testing environment using methdos that will run before
+Testing frameworks generally also allow you to manipulate your testing environment using methods that will run before
 or after each/all tests. In `JUnit` this is done with annotations (`@BeforeAll`, `@BeforeEach`, `@AfterAll`, `@AfterEach`).
 
 An example that uses `Jest` can be found [here](/src/roman).
@@ -75,7 +75,7 @@ An example that uses `Jest` can be found [here](/src/roman).
 A common occurrence while working on a project with others is *refactoring*. The importance of implementing automated
 tests is shown when refactoring. After refactoring some code you will have to re-test your newly refactored code.
 Implementing automated tests will prevent you from having to do the same manual tests multiple times. This not only
-saves resources but also reduces the chance of you mistakenly marking something as working when it actually doesn't.
+saves resources but also reduces the chance of you mistakenly marking something as functional when it actually isn't.
 
 Advantages of automated testing includes:
 - Automated test suites are less prone to obvious mistakes.

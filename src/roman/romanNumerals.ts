@@ -12,7 +12,7 @@ const alphabet = new Map<string, number>([
  * Converts a roman numeral to a base 10 integer
  * @param {string} roman - the roman numeral to convert to a base 10 integer
  */
-export function romanToInteger (roman: string): number {
+export function romanToInteger (roman: string): number4 {
   roman = roman.toUpperCase()
   let total = 0
   for (let i = 0; i < roman.length; i++) {

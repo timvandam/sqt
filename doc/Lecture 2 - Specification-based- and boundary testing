@@ -1,0 +1,42 @@
+# Lecture 2 - Specification-based testing and boundary testing
+
+## Index
+- [Specification-based testing](#specification-based-testing)
+
+## Specification-based testing
+Specification-based testing uses the requirements of the program as input for testing. This type of testing disregard
+any internals; you only test whether partitions of the program work. Neglecting the internals when testing is also called
+**black-box testing**.
+
+### Partitioning the input space
+Since it is almost always impossible to test your program in one go, it's important to split it up in to different
+*partitions*. This can for instance be done by creating additional packages or classes. By doing this you are not only
+partitioning your program, but also your tests. All partitions of your test suite should excersise a different part of
+your program.
+
+### Equivalence partitioning
+As just mentioned, each partition of your tests exercises your program in a different way. When all inputs of this
+partition will yield your program to do the same thing, this method of partitioning test cases is called
+**equivalence partitioning**. Because all possible test cases in an equivalence partition will yield the same behavior,
+you will only have to test one test case in per partition. Concrete examples can be found in the
+[book](https://sttp.site/chapters/testing-techniques/specification-based-testing.html).
+The leap year example shows how both the code and tests are partitioned. In the code each branch will create a new
+partition that is subsequently testing in the test suite.
+
+### Category-partition method
+A systematic manner of deriving test cases is the **category-partition method**. The steps of this method are as follows:
+1. Identify parameters/input.
+2. Derive the characteristics/prerequisites of each parameter (e.g. `int year` is a positive integer).
+3. Add constraints to minimize the test suite.
+    - Find out what combination of parameters is invalid
+    - If a corner case can be testing by just one set of parameters, do it with just that set
+4. Generate sets of parameters and implement your test cases with them.
+
+The [book](https://sttp.site/chapters/testing-techniques/specification-based-testing.html) contains a good example of the
+application of this progress (Christmas discount).
+
+### Random testing vs specification-based testing
+Random testing is a popular *black-box* technique, but although it can be helpful in finding bugs, it is definitely not
+an effective way of doing so. Combining random testing with the tests developers make (like mentioned before) is great,
+though. This way you can have specialized tests that can tackle bug-prone areas, while at the same time generating
+millions of test cases automatically. This is a great compromise between bug-catching efficiency and time efficiency.

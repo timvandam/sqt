@@ -30,7 +30,7 @@ A systematic manner of deriving test cases is the **category-partition method**.
 2. Derive the characteristics/prerequisites of each parameter (e.g. `int year` is a positive integer).
 3. Add constraints to minimize the test suite.
     - Find out what combination of parameters is invalid
-    - If a corner case can be testing by just one set of parameters, do it with just that set
+    - If a corner case can be tested by just one set of parameters, do it with just that set
 4. Generate sets of parameters and implement your test cases with them.
 
 The [book](https://sttp.site/chapters/testing-techniques/specification-based-testing.html) contains a good example of the

@@ -58,7 +58,7 @@ implementation you're testing.
 - **Off points** are values that are closest to the boundary, without being on it. Off points should yield a value
 nonequivalent to its respective on points.
 - **In points** are all points that make the condition `true`.
--- **Out points** are all points that make the condition `false`.
+- **Out points** are all points that make the condition `false`.
 
 ### Boundaries that are not explicit
 This paragraph was just an example; read it [here](https://sttp.site/chapters/testing-techniques/boundary-testing.html).

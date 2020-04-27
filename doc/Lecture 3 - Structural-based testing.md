@@ -78,3 +78,13 @@ when we are done testing a loop. The criteria are as follows:
 - A test case exercises the loop multiple times.
 
 ## The effectiveness of structural testing
+Does test coverage *really* matter? There is no magical coverage % to aim for, but there is evidence that structural
+testing has benefits. These quotes are mentioned in the book:
+- Hutchins et al.: "Within the limited domain of our experiments, test sets achieving coverage levels over 90% usually
+showed significantly better fault detection than randomly chosen test sets of the same size. In addition, significant
+improvements in the effectiveness of coverage-based tests usually occurred as coverage increased from 90% to 100%.
+However, the results also indicate that 100% code coverage alone is not a reliable indicator of the effectiveness of a
+test set."
+- Namin and Andrews: "Our experiments indicate that coverage is sometimes correlated with effectiveness when [test suite]
+size is controlled for, and that using both size and coverage yields a more accurate prediction of effectiveness than
+[test suite] size alone. This in turn suggests that both size and coverage are important to test suite effectiveness."

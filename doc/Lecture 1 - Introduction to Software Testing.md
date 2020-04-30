@@ -73,11 +73,11 @@ An example that uses `Jest` can be found [here](/src/roman).
 
 ## Tests and refactoring
 A common occurrence while working on a project with others is *refactoring*. The importance of implementing automated
-tests is shown when refactoring. After refactoring some code you will have to re-test your newly refactored code.
+tests shows when refactoring. After refactoring some code you will have to re-test your newly refactored code.
 Implementing automated tests will prevent you from having to do the same manual tests multiple times. This not only
 saves resources but also reduces the chance of you mistakenly marking something as functional when it actually isn't.
 
 Advantages of automated testing includes:
 - Automated test suites are less prone to obvious mistakes.
-- Automated test suites are completed way faster than manual testing.
+- Automated test suites complete way faster than manual testing.
 - Automated test suites bring confidence during refactoring.

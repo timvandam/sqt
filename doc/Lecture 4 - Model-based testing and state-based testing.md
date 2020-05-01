@@ -152,3 +152,25 @@ transitions or transitions that shouldn't exist. To test for sneak paths you can
 in your transition table.
 
 ### Super states and regions
+as your state machine grows it will eventually become unclear and impractical. In order to resolve this issue, making
+your model more scalable, you can use **super states** and **regions**.
+
+Super states are states that consist of a state machine of its own. Its pretty much a wrapper around a state machine. A
+super state can also contain multiple state machines, meaning that when your system is in a specific super state, it is
+in two sub-states at the same time. 
+
+### Implementing state-based testing in practice
+In OOP, generally each class corresponds to their own state machine. In these classes there are two types of methods:
+**inspection** and **trigger** methods.
+
+Inspection methods provides information about the system's state. One example could be getter methods. Trigger methods
+bring the class into a new state, by for example changing some of the class's values. An example could be setter methods.
+
+In a test we want to bring the class to different states, and assert their state after each transaction. so, a **test
+scenario** is a series of calls on the class's trigger methods. In between these calls inspection methods are used
+to check/assert the class's state.
+
+Sometimes a state machine spans multiple classes. If this is the case inspection and trigger methods can be hard to
+identify. Hence, state machines can also be used to derive end-to-end tests, where you test the flow of the entire
+system from input to output.
+

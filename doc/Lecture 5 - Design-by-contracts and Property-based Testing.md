@@ -2,6 +2,7 @@
 
 ## Index
 - [Self Testing](#self-testing)
+- [Design by Contracts](#design-by-contracts)
 
 ## Self Testing
 Self testing is pretty much a system that tests itself. This means moving assertions from test suites into actual
@@ -16,7 +17,7 @@ however be turned off by the Java runtime, in fact you have to manually enable t
 Assertions can act like **oracles**, which inform us whether a test has passed or failed. Examples of oracles are
 *value comparisons*, *version comparisons*, and *property checks*. Assertions are generally property checks.
 
-Value comparions are great when you know all possible outcomes for given inputs. Version comparisons are great when you
+Value comparisons are great when you know all possible outcomes for given inputs. Version comparisons are great when you
 don't know all possible outcomes, but do have an older/other version of code that you know works which you can then use
 as oracle. Property checks are checks on the output to check whether certain expected properties hold.
 
@@ -54,10 +55,80 @@ do **not** test for undefined behavior (what happens when receiving invalid inpu
 
 ### Hoare Triples
 A Hoare Triple is a set of 1. Preconditions; 2. A Program *A*; 3. Postconditions. A Hoare Triple can be expressed as
-*{P} A {Q}*. If there are no pre-/postconditions you can simple set P and/or q to True.
+**{P} A {Q}**. If there are no pre-/postconditions you can simple set P and/or q to True.
 
 For specifics into pre- and postconditions please look at the
 [book](https://sttp.site/chapters/testing-techniques/design-by-contracts.html). It's too straight forward to warrant a
 summary.
 
-Stopped reading at Invariants; continue tmrw
+### Invariants
+Invariants are quite different to pre- and postconditions; invariants should hold before *and* after a function call. A
+special type of invariant in Object-Oriented Programming is the **class invariant**. Class invariants are invariants
+that hold after class construction and before and after any call to a public method given that their preconditions hold.
+
+You can check your class invariants in several ways; for example, you can have a private/protected method make
+assertions, and then call that method before and after a public method call. You could also have a boolean method return
+whether the invariant holds, and then assert on its return value before and after your public methods.
+
+## Design by Contracts
+When a server offers clients services through an API, the client and server are bound by a *contract* that describes how
+the API should be used. Properly using the API (preconditions hold) yield valid results (postconditions hold). Designing
+systems following such contracts is called *design by contracts*. Such design uses UML to model interfaces that are to be
+implemented by the server, and used by the client. The following diagram taken from the book shows this:
+<p align="center">
+    <img src="https://sttp.site/chapters/testing-techniques/img/design-by-contracts/dbc_uml.svg" alt="UML Diagram">
+</p>
+
+### Subcontracting
+Imagine that we use one interface to implement another. In this case the pre-/postconditions and invariants of both
+interfaces will align somewhat. To indicate that one interface uses the same conditions as another, but less strictly,
+you can use an apostrophe to indicate that a condition is *weaker* or *stronger*. This is done in the diagram above,
+where the bottom interface inherits from the top interface. I' indicates that it is *stronger* than I, this makes sense
+since the bottom interface will add functionality to the top interface, making extra checks needed. Since the
+preconditions set by the top interface cannot be changed by the bottom interface, P' is just as strong as P. However,
+generally speaker P' can also be weaker than P (when it adds extra constraints). Since P' can only become weaker, Q' can
+only become stronger. Less preconditions create more possible outputs, thus there are more postconditions. 
+
+In short:
+- P' is **weaker** than P
+- I' is **stronger** than I
+- Q' is **stronger** than Q
+
+### Liskov Substitution Principle
+The LSP describes that every user of a class `T` should be able to use any of the subclasses of `T`. It's possible to
+test whether your classes follow the LSP by creating test cases for `T`, and then executing these test cases on every
+subclass. Since creating a duplicate test suite for every subclass of `T` is not ideal you should create a test suite for
+just your superclass, and test additional features subclasses bring to the table in their own test suite that extends
+the superclass's test suite. This way the hierarchical model of your classes will be the same as that of your tests.
+One way you can do this is using abstract an abstract class with test cases and an abstract setUp function to set up
+your test case for the specific subclass you're testing. This is called the *Factory Method*:
+
+```java
+// ListTest.java
+public abstract class ListTest {
+
+  private List list;
+
+  protected abstract List createList();
+
+  @BeforeEach
+  public void setUp() {
+    list = createList();
+  }
+
+  // Common List tests using list
+}
+```
+
+```java
+// ArrayListTest.java
+public class ArrayListTest extends ListTest {
+
+  @Override
+  protected List createList() {
+    return new ArrayList();
+  }
+
+  // Tests specific for the ArrayList
+}
+```

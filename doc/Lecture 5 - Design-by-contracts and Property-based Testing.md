@@ -3,6 +3,7 @@
 ## Index
 - [Self Testing](#self-testing)
 - [Design by Contracts](#design-by-contracts)
+- [Property-Based Testing](#property-based-testing)
 
 ## Self Testing
 Self testing is pretty much a system that tests itself. This means moving assertions from test suites into actual
@@ -132,3 +133,20 @@ public class ArrayListTest extends ListTest {
   // Tests specific for the ArrayList
 }
 ```
+
+## Property-Based Testing
+Property based testing does not only include assertions, you can also use properties to derive test cases. Since you will
+be testing for properties that must always hold, it doesn't matter what your input is. Hence, you can use a generator to
+generate many test cases instantaneously.
+
+Some good examples and code samples can be found in the [book](https://sttp.site/chapters/testing-techniques/property-based-testing.html).
+
+### Property-Based Testing + Ai
+Using a whole lot of randomly generated input is not a very efficient way of testing, but making effective test cases
+requires a lot of resources. Hence, a combination of the two is usually great. The effectivity of generated tests *can*
+be improved though; Ai is perfect for this.
+
+Artificial intelligence can be applied to generate meaningful data, that exercises important parts of your system. One
+problem with this approach is that there is no easy way to know if the output is correct, as the input was generated.
+That's where oracles come into play; checking for properties of the output is already a big step into verifying that
+your system behaves correctly.

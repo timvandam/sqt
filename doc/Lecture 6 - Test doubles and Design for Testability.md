@@ -6,6 +6,8 @@
 - [Integration Testing](#integration-testing)
 - [The Testing Pyramid](#the-testing-pyramid)
 - [Google's Application of The Testing Triangle](#googles-application-of-the-testing-triangle)
+- [Test Doubles](#test-doubles)
+- [Test Doubles at Google](#test-doubles-at-google)
 
 So far only tests for individual components of a system have been discussed (unit tests), however, there exist many more
 **testing levels**.
@@ -101,3 +103,69 @@ also taken in account when designing test cases:
 - Medium tests can span multiple processes, use threads and make external calls (database, network, etc.) as long as
 they're on localhost;
 - Large tests remove the localhost restriction. Google reserves these for full e2e tests. 
+
+## Test Doubles
+While unit testing is simpler than system testing, testing units that depend on other units can still be challenging. An
+example could be a program with a central class that handles all SQL-related things. Any class that uses this class will
+then be dependent on a database, which can make things more difficult. This is where **test doubles** come in. A test
+double is an object that mimics the behavior of a component, this makes it possible to test a unit dependent on another
+unit, where that other unit is completely controller. You can then test the actual implementation of that other unit
+individually. The advantages of test doubles are:
+- More control, you can tell the double exactly how to behave;
+- Faster. You don't rely on API calls, database queries, etc.
+
+There are a few different types of test doubles you can use while testing:
+
+### Dummy Objects
+Dummy Objects are objects that are never really used. For instance, when a `Customer` class takes an `Address` and
+`Last Order` parameter in its constructor and you want to test the `Last Order` parameter, then you could pass a dummy
+object as an `Address` - its data doesn't have to be meaningful, it just has to be present for a `Customer` to be
+instantiated. 
+
+### Fake Objects
+Objects with working implementations of the class they simulate, but do the same task in a much simpler way (e.g. a fake
+database that simply uses a List to store things).
+
+### Stubs
+Objects with hard-coded answers to calls, meaning they don't have a working implementation like fake objects do.
+
+### Spies
+An object that wraps around another object to be able to capture which calls were executed with what parameters, what
+was returned, etc. It behaves exactly like the object it wraps but collects information you can use in the meantime.
+
+### Mocks
+Pre-configured stubs. You could for example tell a mock object to return `1` the first time a method is called. and `2`
+the second time.
+
+### Mockito
+Mockito is a popular Java library for test doubles. You can read how it works in the
+[book](https://sttp.site/chapters/pragmatic-testing/test-doubles.html).
+
+### When you should mock
+Generally you should mock/stub when
+1. Dependencies are too slow;
+2. Dependencies communicate with external sources;
+3. Cases are hard to simulate.
+
+On the other hand, you generally don't want to be mocking/stubbing
+1. Entities that represent a database record - they're usually just fields without any logic;
+2. Native libraries and utility methods.
+
+The reason you don't mock native libraries and utility methods is that you can simply create abstractions of them, and
+mock those.
+
+More rules on mocking can be found in the [book](https://sttp.site/chapters/pragmatic-testing/test-doubles.html).
+
+## Test Doubles at Google
+*Software Engineering at Google* has an entire chapter on test doubles. This is a summary of that chapter:
+- Using test doubles requires the system to be designed for testability, e.g. using abstractions on top of native
+libraries with static methods, dependency injection, etc;
+- Test doubles should behave to the original object as closely as possible;
+- Prefer realism over isolation: when possible use the real implementation instead of test doubles;
+- Execution time and determinism (whether certain inputs always yield the same output) should decide whether to mock;
+- If real implementation can't be used, prefer fakes of mocks;
+- Don't mock excessively; this can make tests hard to comprehend;
+- Prefer state testing over interaction testing when mocking;
+- Use interaction testing when state testing is not possible;
+- Avoid overspecified interaction tests;
+- Good interaction testing requires strict guidelines while designing the system.

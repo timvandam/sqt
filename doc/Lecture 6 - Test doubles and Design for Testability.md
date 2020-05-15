@@ -8,6 +8,7 @@
 - [Google's Application of The Testing Triangle](#googles-application-of-the-testing-triangle)
 - [Test Doubles](#test-doubles)
 - [Test Doubles at Google](#test-doubles-at-google)
+- [Design for Testability](#design-for-testability)
 
 So far only tests for individual components of a system have been discussed (unit tests), however, there exist many more
 **testing levels**.
@@ -169,3 +170,40 @@ libraries with static methods, dependency injection, etc;
 - Use interaction testing when state testing is not possible;
 - Avoid overspecified interaction tests;
 - Good interaction testing requires strict guidelines while designing the system.
+
+## Design for Testability
+Software systems are often not prepared to be tested, requiring a lot of refactoring before writing valuable tests.
+Hence designing and building a software system in a way that increases testability is very valuable. This is called
+**design for testability**, and specifically involves *dependency injection* and the separation between *domain-* and
+*infrastructure code* in addition to some *implementation-level tips*.
+
+### Dependency Injection
+Dependency injection is quite simple. Instead of instantiating a class inside of a method, you take an instantiated
+class as parameter. This allows you to provide a mocked version of a class instead of the actual implementation.
+
+### Domain vs Infrastructure
+Seperating domain and infrastructure is a good step towards designing for testability. The **domain** is the core of the
+system, e.g. business rules, logic, entities, services, etc. The **infrastructure** is all code that handles
+infrastructure like database queries, API calls, file reading and writing, etc. Typical infrastructure classes are DAOs.
+
+Important concepts of this separation are ports and adapters. This is also called *hexagonal architecture*. Whenever
+your domain needs infrastructure, you need your business logic to depend on *ports*. They are simply interfaces
+represent what an infrastructure needs to do. They indicate what has to happen, but not how. How it's done is dependent
+on the *adapter*. An advantage of this is that you can simply mock your ports when testing.
+
+Isolating the domain from the infrastructure layer is called **Domain-Driver Design**. 
+
+### Implementation-level Tips
+These are some tips on designing for testability:
+1. Make sure your classes are cohesive, i.e. make sure they do just one thing. This makes your classes easier to test as
+usually this results in fewer dependencies, thus fewer mocks, etc.;
+2. Try to keep the amount of dependencies low. Having fewer dependencies means having to mock fewer objects, increasing
+testability. This can be done by combining certain conditions, e.g. by wrapping multiple into one;
+3. Don't use overly-complex conditions. A very complex condition will make testing that condition harder. Instead, try
+to spread the condition into smaller conditions to make it a bit easier to test. Note that this does not reduce the
+overall complexity of the problem;
+4. Don't test private methods. Simple private methods can usually be tested through the public methods that use the
+private method, but to make testing easier complex private methods are better tested individually. However, consider
+moving these complex private methods to their own class to decrease complexity;
+5. Avoid creating static methods whenever possible. It is pretty difficult to test static methods, so prevent them.
+Utility methods can be static as they're usually not tested anyway.

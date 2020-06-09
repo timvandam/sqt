@@ -8,6 +8,8 @@ rot unless one actively works against it.
 - [The FIRST Properties](#the-first-properties)
 - [Test Desiderata](#test-desiderata)
 - [Test Code Smells](#test-code-smells)
+- [Test Code Readability](#test-code-readability)
+- [Flaky Tests](#flaky-tests)
 
 ## The FIRST Properties
 The authors of *Pragmatic Unit Testing* discuss the *FIRST Properties of Good Tests*. FIRST is an acryonym for *fast*,
@@ -153,3 +155,41 @@ fails. I.e., mystery guests are hard to find.
 
 One way of making guests explicit is by providing proper error messages when such a guest exhibits unexpected behavior.
 You can do this by simply asserting that behavior. 
+
+## Test Code Readability
+Readability is an important aspect of your tests, because you're going to have to read your tests whenever something
+fails. Being able to comprehend what actually happens in your test allows you to quickly locate the problem.
+
+### Test Structure
+One important aspect that determines whether your tests are readable is its structure. Generally all tests follow the
+structure *Arrange*, *Act*, *Assert*. When these three parts are clearly seperated, it is easier for a developer to know
+what's going on within your test.
+
+### Comprehensibility of the Information
+There is a whole lot of information in your tests; inputs, the flow of information, how the output is retrieved, what
+the expected outcome is, and so on. When your production code becomes more complex, so will your test code. In order to
+still be able to understand what's going on inside your tests you should make sure that the meaning of the important
+information present in your tests is still apparent, and easy to understand.
+
+One way of making sure the information in a test is easy to retrieve is giving variables clear names. If one of your
+variables contains a calculated value, for instance, you should not call that variable `v`, but rather `calculatedValue`
+or something that makes its meaning even more apparent. You could also choose to create additional constructors to key
+objects to make their meaning clearer, as you can now describe it with a method name. Some testing libraries are also
+willing to help; you can sometimes write assertions as if you're writing plain English:
+`assertThat(student.ECs).isGreaterThan(45)`. You can also create such syntax by implementing a **Test Data Builder**,
+which is just a class that creates objects. You can then create methods to populate fields (setters), but instead of
+calling them `setVariableName`, call them `withVariableXOf`. You can then get something like this: 
+`EEMCS.createNewStudent().named("Tim").withNationality("NL").ofAge(18)`. 
+
+## Flaky Tests
+Flaky tests are tests that present erratic behavior. In other words, they are tests that sometimes pass and sometimes
+fail, even when there were no changes in the code base. Such tests have a negative impact in a developer's ability to
+trusts the tests they execute, which directly causes a loss of productivity, or can even devalue tests to the point
+where you deploy code with failing tests.
+
+There are a few general causes for flaky tests:
+- Tests depend on external or shared resources - e.g. a shared database causing a fail when tests are ran in parallel;
+- Improper timeouts - a webservice takes longer to respond than before, but your test automatically times out causing a
+fail;
+- Hidden interaction between test methods - one test might set up some dependency of the other test method. When that
+first test doesn't run the second will fail.

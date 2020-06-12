@@ -7,6 +7,10 @@
 - [Static Analysis Performance](#static-analysis-performance)
 - [Fuzz Testing](#fuzz-testing)
 - [Maximizing Code Coverage](#maximizing-code-coverage)
+- [Security Testing](#security-testing)
+- [The Secure Software Development Life Cycle (Secure-SDLC)](#the-secure-software-development-life-cycle-secure-sdlc)
+- [Facets of Security Testing](#facets-of-security-testing)
+- [Static Application Security Testing (SAST)](#static-application-security-testing-sast)
 
 ## Static Testing
 Static testing analyzes code characteristics without actually executing that code. You could say it's more of a code
@@ -52,8 +56,8 @@ to follow paths and see where they will end up.
 
 Because static analysis brings sound results, you should in theory be able to use them to find vulnerabilities in your
 code. This is not the case though as not all possible paths in your code will ever be taken - some just never happen
-when actually executing the code (e.g. `if (false)`). Taken this into account, you get *completeness*, which consists of
-all paths that will actually be taken. This is a subset of sound.
+when actually executing the code (e.g. `if (false)`). Taking this into account, you get *completeness*, which ensures no
+false positives, while soundness ensures no false negatives.
 
 ## Fuzz Testing
 Fuzzing is a popular form of dynamic testing that can be used to automatically generate complex test cases. These test
@@ -105,3 +109,194 @@ This output can be used as input for generative or mutative fuzzers to optimally
 
 In short, you can use combinatorial solvers to compute exactly which values lead to which paths being taken. You can use
 this information to fuzz certain paths, or ensure that your generated test cases cover all paths.
+
+## Security Testing
+You already know what software testing is, but security testing has not yet been covered. The goal of software testing
+is to check the correctness of your implementation, the goal of security testing is to find vulnerabilities that could
+potentially allow intruders to make the software behave insecurely. An example of such behavior was found in the
+*Signal* messaging app, where specific messages allowed intruders to execute and send files on your drive. Security
+testing is all about finding and preventing such vulnerabilities.
+
+Just like traditional testing, security testing does not ensure that your systems are 100% secure. New exploits that
+manage to break even the best-tested servers can pop up at any time. This is why security testing is not something you
+should do just once, but something you should do often, and should be incorporated into the software development
+lifecycle. This ensures that as your software is growing, so does its security.
+
+Security testers are always racing against attacks that intend to use possible exploits to ensure that they can't. A
+system can be seen as a water balloon, where a needle (an exploit) can pop the balloon whenever it is possible for it to
+do so. From this metaphor follows that you should make your attack surface as small as possible; a smaller balloon is
+harder to be popped than a large balloon.
+
+### Java Vulnerabilities
+Java, like any other programming language, is not immune to security issues. While it might be easier to secure a Java
+application due to its sandboxed nature in the Java Virtual Machine, many new vulnerabilities are found every year.
+Potential vulnerabilities could be:
+1. Code injection;
+2. Type confusion;
+3. Buffer overflow;
+4. Arbitrary Code Execution (ACE);
+5. Remote Code Execution (RCE).
+
+#### Code Injection
+Code injection can happen when your code directly evaluates some user input. In Javascript, the `eval` method allows you
+to interpret and execute a string as Javascript, so this method should never be used to evaluate user input. In Java,
+`Class.forName` can be used to find a class with a name that matches the input string. While it might seem less prone
+to abuse than Javascript's `eval` method, it can surely be used to exploit your system when given user input.
+
+#### Type Confusion
+In Java, different objects will have different permissions. For example, only children of classes will be able to access
+private/protected attributes of their superclass. When you cast some object to some class, you're giving that object
+permission to access these attributes. The trouble begins when you are typecasting objects to the wrong classes. This
+vulnerability was present in the `tryfinally()` method in the Reflection API of Hibernate, where attackers could cast
+objects into arbitrary types with varying privileges. This code example from the book explains it pretty well:
+```java
+class Cast1 extends Throwable {
+  Object lemon;
+}
+
+class Cast2 extends Throwable {
+  Lime lime;
+}
+
+public static void throwEx() throws Throwable {
+  throw new Cast1();
+}
+
+public static void handleEx(Cast2 e) {
+  e.lime.makeLimenade();
+}
+```
+
+In older versions of Java, the thrown `Cast1` would automatically be cast to a `Cast2` when used as input for
+`handleEx`, so in this case attackers would be able to execute `Cast1.lime.makeLimenade()`. In this example that would
+not make sense, as `Cast` does not have a lime attribute, but there are certainly cases where this can be abused.
+
+In a real-world setting, an attacker could use this vulnerability to bypass the Java Security Managed (**JSM**) and to
+disable it, allowing them to use other exploits in order to do whatever they want.
+
+#### Arbitrary Code Execution (ACE)
+While Java *does* automatically handle memory, it's still prone to buffer overflows. An example was found in an earlier
+version of a GIF library in the Sun JVM, where you could create a GIF with a width of 0 to instantly cause a buffer
+overflow, as the buffer was 0 bytes long. This buffer overflow could cause the instruction pointer to be corrupted,
+resulting in ACE.
+
+Similarly, the XStream XML deserialization library could cause the instruction pointer to start executing code from
+arbitrary memory locations. This location could potentially be controller by an attacker.
+
+When ACE is triggered remotely, it's called Remote Code Execution (RCE). The principle is exactly the same, but the
+means of triggering it is different - one is internal while the other is external.
+
+An Oracle report in 2018 stated that most of Java's vulnerabilities can be remotely exploited, which is a very bad thing
+considering 3 billion devices run Java worldwide.
+
+## The Secure Software Development Life Cycle (Secure-SDLC)
+Security testing is a type of non-functional testing; just like static testing no code is actually executed. Lack of
+security can have devastating effects, so the pragmatic approach is to incorperate security testing in each phase of the
+SDLC.
+
+This picture from the book shows the SDLC:
+![](https://sttp.site/chapters/non-functional-testing/img/security-testing/ssdlc.png)
+
+In phase one, you should asses what potential abuse cases might be in order to know which protections should be in
+place. In phase two, you should look into the potential threats, attackers, etc. In phases three and four, plans of the
+application should include insights from the attacker model and abuse cases.
+
+The actual testing is vital in phase five, and code should be reviewed from the perspective of attackers. Finally, in
+phase six, developers should keep an eye on the CVE database and update vulnerable components in the application. 
+
+Currently, most companies only do *penetration testing*. This on its own is not great, as this leaves security testing
+to the very end of the SDLC. Also, penetration testing considers your application a black box, making it hard to find
+cases where individual components might cause trouble.
+
+## Facets of Security Testing
+Security testing is a very broad term, but is classified as follows:
+
+| |White-box|Black-box|
+|---|---|---|
+|**Static Application Security Testing**|Code checking, pattern matching, ASTs, CFGs, DFDs||
+|**Dynamic Application Security Testing**|Tainting, dynamic validation, symbolic execution|Penetration testing, reverse engineering, behavioral analysis, fuzzing|
+
+### Quality Assessment Criteria
+There are a few ways of assessing the quality of testing tools. First off, there should be a balance between soundness
+and completeness. Soundness is needed because you don't want false negatives, and completeness is needed because you
+want to prevent false positives. In a perfect world both would be achieved, but we don't live in that world, so we
+compromise between the two.
+
+Ideal testing tools are interpretable, making it easy to trace issues to their cause, and scalable, meaning that it can
+be used to test large-scale applications.
+
+## Static Application Security Testing (SAST)
+SAST is just another form as static testing, but for security. SAST techniques aim to find security bugs without running
+actual code. This, of course, has its limitations, but can be great for finding issues like SQL Injection or basic XSS.
+
+It is generally very fast when compared to DAST, and is not limited to only code checking. Any approach that does not
+involve running code is valid, so you could also create a Control-Flow Graph and see how worst-case scenarios would pan
+out. If you don't like what you see you can make changes in order to make your worst-case scenario better. This is
+called **Risk-based Testing**, and can be done both statically and dynamically. In short, it's a business-level process
+where abuse cases are modeled using threat modelling.
+
+There are many SAST techniques with different use cases.
+
+### Code Checking
+Code checking can be done in multiple ways; pattern matching and static analysis using ASTs.
+
+#### Pattern Matching
+Pattern matching is rather simplistic, as it does not attempt to interpret the code but instead looks for patterns of
+characters. This obviously greatly limits its huge case, but it's a great solution for finding misconfigurations, bad
+imports, or calls to dangerous functions that could enable things like code injection.
+
+#### Static Analysis using ASTs
+ASTs can be used to interpret code. This makes it possible for testing tools to walk through your code, taking each
+path, and seeing what security rules it violates. You could for instance specify how the `printf` function should be
+used to ensure that it's always used appropriately (printf is vulnerable to RCE/ACE).
+
+### Structural Testing
+Structural testing can be used to ensure that interactions between blocks of code are valid.
+
+#### Control-Flow Graphs
+CFGs can be used to map each path through your code your application might take. This makes it possible to graphically
+pinpoint possible vulnerability-prone areas. These areas could include unintended transitions between parts of your code
+or certain blocks of code being unreachable.
+
+CFGs have previously been used to detect the maliciousness of an application. They can be used to detect self-mutating
+malware by comparing the CFG of that malware to CFGs of other known malwares. CFGs are pretty much ideal for checking
+for plagiarism in code, the structure of code doesn't change when you simply rename variables.
+
+#### Data Flow Diagram (DFD)
+Data flow diagrams are built on top of CFGs and show how data traverses through a program. DFDs track all possible
+values a variable might have at a point of time during code execution. This can be used to detect sanitization problems
+that could potentially cause ACE or code injection.
+
+Data Flow Analysis (DFA) works by tracking a **source** (a user-controlled variable). The source can be tainted by
+**sinks**, which are all other variables. When sources are mixed with sinks, the only way to ensure that this source
+does not become tainted, is to validate the sink.
+
+In DFA, we prove that no tainted data is used, and that no untainted data is expected - all data is validated before
+being used. Any direct path between a source and sink is a violation, and should be fixed when indicated during DFA.
+
+This example from the book shows a real case that can be detected using DFA:
+```java
+/* Uses bad source and bad sink */
+public void bad(HttpServletRequest request, HttpServletResponse response)
+  throws Throwable {
+
+  String data;
+
+  /* Potential flaw: Read data from a queryString using getParameter */
+  data  = request.getParameter("name");
+
+  if (data != null) {
+    /* Potential flaw: Display of data in web pages after using
+    * replaceAll() to remove script tags,
+    * will still allow XSS with string like <scr<script>ipt>. */
+    response.getWriter().println("<br>bad(): data = " +
+        data.replaceAll("(<script>)", ""));
+  }
+}
+```
+
+You can also perform DFA dynamically (Taint Analysis), where tainted variables are tracked in memory.
+
+##### Reaching Definitions Analysis
+One application of DFA is called **Reaching Definitions**. It identifies all possible values of a variable. For security
+purposes it can also detect Type Confusion and use of a variable after its memory has been freed.

@@ -2,7 +2,11 @@
   <dictionary name="tim">
     <words>
       <w>composable</w>
+      <w>dast</w>
+      <w>fuzzers</w>
       <w>postconditions</w>
+      <w>sast</w>
+      <w>sdlc</w>
     </words>
   </dictionary>
 </component>

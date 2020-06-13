@@ -7,6 +7,7 @@
       <w>postconditions</w>
       <w>sast</w>
       <w>sdlc</w>
+      <w>sut</w>
     </words>
   </dictionary>
 </component>

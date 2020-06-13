@@ -11,6 +11,8 @@
 - [The Secure Software Development Life Cycle (Secure-SDLC)](#the-secure-software-development-life-cycle-secure-sdlc)
 - [Facets of Security Testing](#facets-of-security-testing)
 - [Static Application Security Testing (SAST)](#static-application-security-testing-sast)
+- [Dynamic Application Security Testing (DAST)](#dynamic-application-security-testing-dast)
+- [Performance of SAST vs DAST](#performance-of-sast-vs-dast)
 
 ## Static Testing
 Static testing analyzes code characteristics without actually executing that code. You could say it's more of a code
@@ -299,4 +301,125 @@ You can also perform DFA dynamically (Taint Analysis), where tainted variables a
 
 ##### Reaching Definitions Analysis
 One application of DFA is called **Reaching Definitions**. It identifies all possible values of a variable. For security
-purposes it can also detect Type Confusion and use of a variable after its memory has been freed.
+purposes it can also detect Type Confusion and use of variables after their memory has been freed.
+
+RDA works by creating a CFG. You can then see how data changes per block and construct a table based on this. A for
+loop, for instance, usually contains `i++` in the `i` column. It is not possible to know exactly which values are
+assigned to each variable during the loop when using static analysis, as knowing when the loop terminates is an
+undecidable problem (= the halting problem). The column of a variable in the previously described table is also not
+always perfect, as some values are simply impossible during runtime. Hence, this column represents an overestimation of
+the values a variable can take on; RDA is sound but incomplete.
+
+An example table:
+
+|code blocks|a|b|
+|:---:|:---:|:---:|
+|b1|6|3|
+|b2|a--|b - a|
+|b3| |b|
+
+This would create the following possible values per variable after the loop has ended:
+```
+a = { 6, 5, 4, 3, 2, 1, 0, -1, ... } // start at 6, then decrements by 1 indefinitely
+b = { 3, 2, 1, 0, -1, 2, -3, ... } U { 4, 5, 6, 7, ... } = Z
+```
+
+Note that `a` starts at 6 and can go down in steps of one indefinitely according to our RDA. `b` starts at 3 can be
+decremented by `a`. Since `a` starts at 6, the lowest value `b` can take on is `3 - 6 = -3`. `a` goes down indefinitely,
+though, so `b` can take on any value above `-3`.
+
+This table could correspond to the following code, which computes `b - a(a+1)/2`:
+```java
+int a = 6;
+int b = 3;
+while (a > 0) {
+    b -= a--;
+}
+return b;
+```
+
+When you know what this code does it is quite obvious that the only possible value for `a` at the end of the code is 0,
+but static analysis can't determine that. The same goes for `b`, we know that it should be `-18` in the end, because
+that's simply the result of `b - a(a+1)/2` with `a = 6`, `b = 3`. Static analysis determined that `b` could be any
+integer, though.
+
+The previously shown table is of course more comprehensive than others you might see, as most variables have pretty
+clearly defined extremes (no `a++` or `b - a` results in non-infinite sets for `a` and `b`).
+
+## Dynamic Application Security Testing (DAST)
+Unlike static analysis, dynamic analysis actually runs code. Dynamic analysis can take the form of *dynamic application
+security testing*. A common example is penetration testing, where you get someone to purposefully try to crack your
+application's security from the outside. This could involve crafting custom API calls, etc. All in all, it requires
+a running application and can detect issues that static analysis would not have detected.
+
+An example of an issue that only dynamic analysis can detect is Denial of Service (DoS). Malicious parties could make
+specific calls to your application to make it do computationally expensive work, slowing down your service or even
+taking it down. This clearly requires code to run.
+
+DAST tools typically do not have access to the source code, so they can only test functional code paths (= less sound
+than SAST) These tools do need to know how to trigger these paths, though. This makes DAST harder to set up than SAST,
+however search-based algorithms have been proposed to maximize code coverage without much manual work. 
+
+### Taint Analysis
+As previously discussed, taint analysis is a dynamic version of data flow analysis. Variables can be tracker through
+memory to ensure they don't become tainted. Taint analysis works using a *taint table*. This table records tainted
+values and analyses how these values propagate throughout the code, and how these values affect other values or
+statements (e.g. if statements). To enable tainting, **code instrumentation** is done. This means adding hooks to
+variables of interest in order to be able to track them.
+
+A tool that allows this is *Panorama*, which can detect malicious software like keyloggers and spyware using dynamic
+taint analysis. It works on the intuition that benign software does not interfere with OS-specific data transfer (like
+keystrokes being reported by your keyboard drivers). Malicious software also tends to share information with third
+parties. This can also be detected using taint analysis.
+
+### Dynamic Validation
+Dynamic validation applies functional testing on the SUT based on the SUT's specification. It is rather simple as it
+only tests against pre-defined specifications, so thinking of abuse cases (and methods) is vital when using dynamic
+validation. Dynamic validation is similar to **model checking** as they both require some specification to work, but
+model checking differs in the fact that it builds a model based on the SUT (as it learns about it).
+
+Model checking can codify security vulnerabilities as safety properties, and analyse processes to ensure these
+properties always hold to prevent abuse.
+
+### Penetration Testing
+Arguably the best-known DAST method is penetration testing. It is a block-box testing technique where adversaries (or
+people that emulate being adversaries) will try to abuse the system. Depending on the knowledge of the attacker
+penetration Penetration testing can also be white-box, though. Pen testing is sometimes referred to as *ethical
+hacking*. It is different from other DAST techniques as this technique purely focuses on the perspective of attackers.
+
+Pen testing checks the SUT in an e2e fashion, so the fully implemented application is tested as opposed to individual
+components. *MetaSploit* is an example of a powerful pen testing framework. Most of these frameworks contain
+*Vulnerability Scanners* that can run (custom) exploits, and *Password Crackers* that attempt to access the system using
+brute-force or dictionary password attempts.
+
+### Behavioral Analysis
+Behavioral Analysis involves gaining insight about the software by generating behavioral logs. Since a code base usually
+contains of third-party code, it is important perform this type of analysis to ensure that these third-party code blocks
+are not malicious or buggy.
+
+You can compare behavioral logs to behavioral logs that are known to be normal in order to spot faults or bugs. An
+example of behavioral analysis is done in JPacman, where there are two score modules of which one is malicious. They
+both generate different behavioral logs, so comparing them can be a great way to find out which one is malicious, and
+where the abuse is happening. These behavioral logs can be generated by running a fuzzer against your software.
+
+### Reverse Engineering
+Reverse Engineering is a black-box technique in which you try to figure out the internal structure of an application.
+This information can be very valuable to malicious parties, as it can turn a black-box technique whiter. RE is not
+really a testing technique, but can help you convert legacy software into a modern version, or understanding a
+competitor's product. One way of reverse engineering is using behavioral logs; an effective logger can tell you much
+about how a piece of software works internally, and can even be applied to automatically create a model of the SUT which
+you can then apply other testing methods on.
+
+### Fuzzing
+As previously discussed, fuzzing is a testing technique that involves generating inputs to test your SUT against. You
+are trying to make your tests fail, but to get useful results you preferably only use valid values as input. This
+creates the distinction between mutation-based fuzzers and generative fuzzers.
+
+Fuzzers are widely used, and can be quite effective when applied correctly (it can take quite some time though!).
+
+## Performance of SAST vs DAST
+SAST is generally faster as you don't have to run actual code. It also doesn't involve mass-generating/executing tests
+like many DAST techniques do. Since SAST does not run the actual code, its performance quality-wise is worse, though.
+The fact that almost all software uses third-party modules makes this an even bigger issue. DAST is more black-box, so
+less efficient time-wise, but will be more accurate when attempting to emulate potential adversaries, but also makes it
+less scalable as finding issues in a large system will take a very long time. 
